@@ -292,7 +292,7 @@ ensure_env_files() {
 # Server
 PORT=3000
 HOST=0.0.0.0
-NODE_ENV=production
+NODE_ENV=development
 
 # SSH (used for authentication/terminal)
 SSH_HOST=localhost
