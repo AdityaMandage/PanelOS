@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PanelOS - Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+  <style>
+    * {
+      transition: color 0.2s ease, background-color 0.2s ease;
+    }
+
+    body {
+      background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #e0e0e0;
+    }
+
+    .metric-card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 20px;
+      transition: all 0.3s ease;
+    }
+
+    .metric-card:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .metric-title {
+      font-size: 14px;
+      color: #b0b0b0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+
+    .metric-value {
+      font-size: 32px;
+      font-weight: bold;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+
+    .progress-cool { background: linear-gradient(90deg, #00c853, #64dd17); }
+    .progress-normal { background: linear-gradient(90deg, #ffc400, #ff9100); }
+    .progress-warm { background: linear-gradient(90deg, #ff6f00, #ff3d00); }
+    .progress-hot { background: #d32f2f; }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-top: 8px;
+    }
+
+    .status-cool { background: rgba(0, 200, 83, 0.2); color: #00c853; }
+    .status-normal { background: rgba(255, 196, 0, 0.2); color: #ffc400; }
+    .status-warm { background: rgba(255, 111, 0, 0.2); color: #ff6f00; }
+    .status-hot { background: rgba(211, 47, 47, 0.2); color: #ff5252; }
+    .status-unknown { background: rgba(158, 158, 158, 0.2); color: #9e9e9e; }
+
+    .header {
+      background: rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 16px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-title {
+      font-size: 24px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header-info {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .connection-indicator {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #d32f2f;
+      animation: pulse 2s infinite;
+    }
+
+    .connection-indicator.connected {
+      background: #00c853;
+      animation: none;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .btn-logout {
+      padding: 8px 16px;
+      background: rgba(211, 47, 47, 0.8);
+      border: none;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-logout:hover {
+      background: #d32f2f;
+      transform: translateY(-2px);
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 10px;
+    }
+
+    .nav-tab {
+      padding: 10px 16px;
+      background: transparent;
+      border: none;
+      color: #b0b0b0;
+      cursor: pointer;
+      font-weight: 600;
+      border-bottom: 2px solid transparent;
+      transition: all 0.3s ease;
+    }
+
+    .nav-tab.active {
+      color: #fff;
+      border-bottom-color: #667eea;
+    }
+
+    .nav-tab:hover {
+      color: #fff;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #b0b0b0;
+    }
+
+    .network-item {
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 6px;
+      margin-bottom: 8px;
+      border-left: 3px solid #667eea;
+    }
+
+    .network-item-name {
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .network-item-ip {
+      font-size: 12px;
+      color: #9e9e9e;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <div class="header-content">
+      <div class="header-title">
+        <span>🥧</span>
+          <span>PanelOS</span>
+      </div>
+      <div class="header-info">
+        <div>
+          <div style="font-size: 12px; color: #b0b0b0;">Logged in as</div>
+          <div style="font-weight: 600;" id="username">Loading...</div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <div class="connection-indicator" id="connectionStatus"></div>
+          <span id="connectionText" style="font-size: 12px; color: #b0b0b0;">Connecting...</span>
+        </div>
+        <button class="btn-logout" onclick="logout()">Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+    <!-- Navigation Tabs -->
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="switchTab('overview')">Overview</button>
+      <button class="nav-tab" onclick="switchTab('details')">Details</button>
+      <button class="nav-tab" onclick="switchTab('terminal')">Terminal</button>
+      <button class="nav-tab" onclick="switchTab('firewall')">Firewall</button>
+    </div>
+
+    <!-- Overview Tab -->
+    <div id="overview" class="tab-content active">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <!-- CPU Card -->
+        <div class="metric-card">
+          <div class="metric-title">CPU Usage</div>
+          <div class="metric-value" id="cpuUsage">0%</div>
+          <div class="progress-bar">
+            <div class="progress-fill progress-cool" id="cpuBar" style="width: 0%;"></div>
+          </div>
+          <div style="font-size: 12px; color: #9e9e9e; margin-top: 8px;">
+            <span id="cpuCores">0</span> cores
+          </div>
+        </div>
+
+        <!-- Memory Card -->
+        <div class="metric-card">
+          <div class="metric-title">Memory</div>
+          <div class="metric-value" id="memUsage">0%</div>
+          <div class="progress-bar">
+            <div class="progress-fill progress-cool" id="memBar" style="width: 0%;"></div>
+          </div>
+          <div style="font-size: 12px; color: #9e9e9e; margin-top: 8px;">
+            <span id="memUsed">0</span>MB / <span id="memTotal">0</span>MB
+          </div>
+        </div>
+
+        <!-- Temperature Card -->
+        <div class="metric-card">
+          <div class="metric-title">Temperature</div>
+          <div class="metric-value" id="tempValue">--°C</div>
+          <div id="tempBadge" class="status-badge status-unknown">Unknown</div>
+        </div>
+
+        <!-- Uptime Card -->
+        <div class="metric-card">
+          <div class="metric-title">System Uptime</div>
+          <div class="metric-value" id="uptime" style="font-size: 24px;">--</div>
+          <div style="font-size: 12px; color: #9e9e9e; margin-top: 8px;" id="uptimeDetail">Loading...</div>
+        </div>
+      </div>
+
+      <!-- Disk Usage -->
+      <div class="metric-card">
+        <div class="metric-title">Disk Usage</div>
+        <div id="diskContainer" class="space-y-4">
+          <div class="loading">Loading disk information...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Details Tab -->
+    <div id="details" class="tab-content">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- System Info -->
+        <div class="metric-card">
+          <div class="metric-title">System Information</div>
+          <div class="space-y-3">
+            <div>
+              <div style="font-size: 12px; color: #9e9e9e;">Hostname</div>
+              <div id="hostname" style="font-weight: 600;">--</div>
+            </div>
+            <div>
+              <div style="font-size: 12px; color: #9e9e9e;">Platform</div>
+              <div id="platform" style="font-weight: 600;">--</div>
+            </div>
+            <div>
+              <div style="font-size: 12px; color: #9e9e9e;">Distro</div>
+              <div id="distro" style="font-weight: 600;">--</div>
+            </div>
+            <div>
+              <div style="font-size: 12px; color: #9e9e9e;">Kernel</div>
+              <div id="kernel" style="font-weight: 600;">--</div>
+            </div>
+            <div>
+              <div style="font-size: 12px; color: #9e9e9e;">Architecture</div>
+              <div id="arch" style="font-weight: 600;">--</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Network Interfaces -->
+        <div class="metric-card">
+          <div class="metric-title">Network Interfaces</div>
+          <div id="networkContainer">
+            <div class="loading">Loading network information...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Terminal Tab -->
+    <div id="terminal" class="tab-content">
+      <div class="metric-card">
+        <div class="metric-title">Web Terminal</div>
+        <div id="terminalContainer" style="height: 400px; background: #000; border-radius: 6px; margin-top: 12px;">
+          <div class="loading" style="height: 100%; display: flex; align-items: center;">Loading terminal...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Firewall Tab -->
+    <div id="firewall" class="tab-content">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Firewall Status -->
+        <div class="metric-card">
+          <div class="metric-title">Firewall Status</div>
+          <div id="firewallStatus" class="text-center">
+            <div class="loading">Loading...</div>
+          </div>
+        </div>
+
+        <!-- Add Rule Form -->
+        <div class="metric-card">
+          <div class="metric-title">Add Firewall Rule</div>
+          <form id="addRuleForm" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-1">Action</label>
+              <select id="ruleAction" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white">
+                <option value="allow">Allow</option>
+                <option value="deny">Deny</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-1">Protocol</label>
+              <select id="ruleProtocol" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white">
+                <option value="tcp">TCP</option>
+                <option value="udp">UDP</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-1">Port</label>
+              <input type="number" id="rulePort" min="1" max="65535" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white" placeholder="e.g., 80">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-1">Source IP (optional)</label>
+              <input type="text" id="ruleSource" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white" placeholder="e.g., 192.168.1.0/24 or leave empty">
+            </div>
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors">
+              Add Rule
+            </button>
+          </form>
+        </div>
+
+        <!-- Active Rules -->
+        <div class="metric-card lg:col-span-2">
+          <div class="metric-title">Active Firewall Rules</div>
+          <div id="firewallRules" class="space-y-2">
+            <div class="loading">Loading rules...</div>
+          </div>
+        </div>
+
+        <!-- Exposed Ports -->
+        <div class="metric-card lg:col-span-2">
+          <div class="metric-title">Exposed Ports</div>
+          <div id="exposedPorts" class="space-y-2">
+            <div class="loading">Loading ports...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/dashboard.js"></script>
+  <script src="/js/terminal.js"></script>
+</body>
+</html>

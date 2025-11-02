@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PanelOS - Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .login-card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+      max-width: 400px;
+      width: 100%;
+      animation: slideUp 0.5s ease-out;
+    }
+    
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .login-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 30px 20px;
+      text-align: center;
+    }
+    
+    .login-header h1 {
+      color: white;
+      font-size: 28px;
+      font-weight: bold;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    
+    .login-header p {
+      color: rgba(255, 255, 255, 0.9);
+      margin: 10px 0 0 0;
+      font-size: 14px;
+    }
+    
+    .login-body {
+      padding: 30px 25px;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      color: #333;
+      font-weight: 500;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    
+    .form-group input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      box-sizing: border-box;
+    }
+    
+    .form-group input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .btn-login {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+    }
+    
+    .btn-login:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+    
+    .btn-login:active {
+      transform: translateY(0);
+    }
+    
+    .btn-login:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .alert {
+      padding: 12px 16px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      display: none;
+    }
+    
+    .alert.show {
+      display: block;
+      animation: slideDown 0.3s ease-out;
+    }
+    
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .alert-error {
+      background: #fee;
+      color: #c33;
+      border: 1px solid #fcc;
+    }
+    
+    .alert-success {
+      background: #efe;
+      color: #3c3;
+      border: 1px solid #cfc;
+    }
+    
+    .loading {
+      display: none;
+    }
+    
+    .spinner {
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid #667eea;
+      border-radius: 50%;
+      width: 14px;
+      height: 14px;
+      animation: spin 1s linear infinite;
+      margin-right: 8px;
+      display: inline-block;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .info-box {
+      background: #f0f4ff;
+      border-left: 4px solid #667eea;
+      padding: 12px;
+      margin-top: 20px;
+      border-radius: 4px;
+      font-size: 13px;
+      color: #555;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-card">
+    <!-- Header -->
+    <div class="login-header">
+      <h1>
+        <span>🥧</span>
+        <span>PanelOS</span>
+      </h1>
+      <p>Linux System Dashboard</p>
+    </div>
+    
+    <!-- Body -->
+    <div class="login-body">
+      <!-- Alert messages -->
+      <div id="alert" class="alert"></div>
+      
+      <!-- Login form -->
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input 
+            type="text" 
+            id="username" 
+            name="username" 
+            placeholder="SSH username"
+            required
+            autocomplete="username"
+          >
+        </div>
+        
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input 
+            type="password" 
+            id="password" 
+            name="password" 
+            placeholder="SSH password"
+            required
+            autocomplete="current-password"
+          >
+        </div>
+        
+        <button type="submit" class="btn-login" id="submitBtn">
+          <span class="loading">
+            <span class="spinner"></span>
+            Logging in...
+          </span>
+          <span class="text">Login</span>
+        </button>
+      </form>
+      
+      <!-- Info box -->
+      <div class="info-box">
+        <strong>💡 Tip:</strong> Use your system SSH credentials (username and password) to login.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('loginForm');
+    const alert = document.getElementById('alert');
+    const submitBtn = document.getElementById('submitBtn');
+    const loadingSpan = submitBtn.querySelector('.loading');
+    const textSpan = submitBtn.querySelector('.text');
+
+    // Show alert message
+    function showAlert(message, type = 'error') {
+      alert.textContent = message;
+      alert.className = `alert show alert-${type}`;
+      setTimeout(() => {
+        alert.classList.remove('show');
+      }, 5000);
+    }
+
+    // Set loading state
+    function setLoading(isLoading) {
+      submitBtn.disabled = isLoading;
+      if (isLoading) {
+        loadingSpan.style.display = 'inline';
+        textSpan.style.display = 'none';
+      } else {
+        loadingSpan.style.display = 'none';
+        textSpan.style.display = 'inline';
+      }
+    }
+
+    // Handle form submission
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      
+      if (!username || !password) {
+        showAlert('Please enter username and password', 'error');
+        return;
+      }
+      
+      setLoading(true);
+      
+      try {
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ username, password })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+          showAlert('Login successful! Redirecting...', 'success');
+          setTimeout(() => {
+            window.location.href = '/dashboard';
+          }, 1000);
+        } else {
+          showAlert(data.error || 'Login failed', 'error');
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Login error:', error);
+        showAlert('Connection error. Please try again.', 'error');
+        setLoading(false);
+      }
+    });
+    
+    // Clear error on input
+    document.getElementById('username').addEventListener('focus', () => {
+      alert.classList.remove('show');
+    });
+    document.getElementById('password').addEventListener('focus', () => {
+      alert.classList.remove('show');
+    });
+  </script>
+</body>
+</html>
