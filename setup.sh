@@ -104,13 +104,13 @@ install_packages() {
     log_info "Installing packages: ${packages[*]}"
     case "$PKG_MANAGER" in
         apt)
-            eval "$PKG_INSTALL_CMD ${packages[*]}" >/dev/null
+            apt-get install -y "${packages[@]}" >/dev/null
             ;;
         pacman)
-            eval "$PKG_INSTALL_CMD ${packages[*]}"
+            pacman -S --noconfirm "${packages[@]}"
             ;;
         *)
-            eval "$PKG_INSTALL_CMD ${packages[*]}" >/dev/null
+            eval "$PKG_INSTALL_CMD \"${packages[@]}\"" >/dev/null
             ;;
     esac
 }
