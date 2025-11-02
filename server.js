@@ -162,10 +162,10 @@ const sessionMiddleware = session({
   saveUninitialized: false,
   store: sessionStore,
   cookie: {
-    secure: process.env.NODE_ENV === 'production',
+    secure: false, // Allow HTTP for now - set to true only with HTTPS
     httpOnly: true,
     maxAge: parseInt(process.env.SESSION_TIMEOUT) || 30 * 60 * 1000,
-    sameSite: 'strict'
+    sameSite: 'lax' // More permissive than 'strict' for cross-IP access
   }
 });
 
