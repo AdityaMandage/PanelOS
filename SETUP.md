@@ -28,8 +28,8 @@ Baseline requirements:
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/your-org/RasPi-Dashboard.git panelos
-cd panelos
+git clone https://github.com/your-org/PanelOS.git
+cd PanelOS
 
 # 2. Make the provisioning script executable
 chmod +x setup.sh
