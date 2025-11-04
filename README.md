@@ -1,531 +1,1067 @@
-# PanelOS
+# PanelOS# PanelOS
 
-A lightweight, production-ready Linux system management dashboard built with Node.js, Express, and Socket.io. Monitor system metrics, manage firewalls, and access terminal sessions all from a modern web interface.
 
-## Features
 
-- **🖥️ Real-Time System Monitoring**: Live CPU, memory, disk, temperature, and network metrics
-- **🔌 Web Terminal**: Full-featured SSH terminal with PTY support and resizable interface
-- **🔥 Firewall Management**: GUI for managing firewall rules (ufw/iptables) with visual port exposure tracking
-- **🔐 SSH Authentication**: Secure credential-based login with rate limiting
-- **📊 System Information**: Comprehensive OS, kernel, and hardware details
-- **📈 Daily Rotating Logs**: Automatic log rotation with 3-day retention policy
+A lightweight, production-ready Linux system management dashboard. Monitor system metrics, manage firewalls, and access terminal sessions all from a modern web interface.A lightweight, production-ready Linux system management dashboard built with Node.js, Express, and Socket.io. Monitor system metrics, manage firewalls, and access terminal sessions all from a modern web interface.
 
-## System Monitoring
 
-Real-time system metrics collection and visualization:
 
-- **CPU Metrics**: Usage percentage, load averages, core temperatures
+**⚠️ For Developers:** This is a foundational system—deliberately lean and focused on core functionality without bloat. If you need additional features, feel free to extend it, open an issue, or contribute. All ideas welcome!---
+
+
+
+---**⚠️ Note for Developers:** This is a **foundational system** — deliberately lean and focused. It provides core functionality for system management without unnecessary bloat. If you need additional features, feel free to extend it or open an issue with your ideas. Contributions are welcome!
+
+
+
+## Features## Features
+
+
+
+- **🖥️ Real-Time System Monitoring**: Live CPU, memory, disk, temperature, and network metrics- **🖥️ Real-Time System Monitoring**: Live CPU, memory, disk, temperature, and network metrics
+
+- **🔌 Web Terminal**: Full-featured SSH terminal with PTY support and dynamic resizing- **🔌 Web Terminal**: Full-featured SSH terminal with PTY support and resizable interface
+
+- **🔥 Firewall Management**: Visual interface for ufw/iptables rule management- **🔥 Firewall Management**: GUI for managing firewall rules (ufw/iptables) with visual port exposure tracking
+
+- **🔐 SSH Authentication**: Secure credential-based login with rate limiting- **🔐 SSH Authentication**: Secure credential-based login with rate limiting
+
+- **📊 System Info**: OS details, uptime, hostname, kernel version- **📊 System Information**: Comprehensive OS, kernel, and hardware details
+
+- **📈 Auto-Rotating Logs**: Daily rotation with 3-day retention policy- **📈 Daily Rotating Logs**: Automatic log rotation with 3-day retention policy
+
+
+
+---## System Monitoring
+
+
+
+## Quick StartReal-time system metrics collection and visualization:
+
+
+
+### Automated Setup (Recommended)- **CPU Metrics**: Usage percentage, load averages, core temperatures
+
 - **Memory**: RAM usage, swap usage, available memory
-- **Disk**: Storage usage, read/write speeds, filesystem information
-- **Network**: Interface statistics, bandwidth usage, connection counts
-- **System Info**: OS details, uptime, hostname, kernel version
 
-### Quick vs Full Metrics
-- **Quick Metrics**: Lightweight polling for real-time dashboard updates
+```bash- **Disk**: Storage usage, read/write speeds, filesystem information
+
+git clone https://github.com/AdityaMandage/PanelOS.git- **Network**: Interface statistics, bandwidth usage, connection counts
+
+cd PanelOS- **System Info**: OS details, uptime, hostname, kernel version
+
+chmod +x setup.sh
+
+sudo ./setup.sh### Quick vs Full Metrics
+
+```- **Quick Metrics**: Lightweight polling for real-time dashboard updates
+
 - **Full Metrics**: Comprehensive system information for detailed analysis
+
+Then access the dashboard at `http://<SERVER_IP>:3000`
 
 ## SSH Terminal
 
+**Login with any valid system user credentials** (SSH username/password).
+
 Web-based terminal emulator with full PTY support:
 
+### Manual Setup
+
 - **Real-time Terminal**: Interactive shell access via WebSocket
-- **PTY Support**: Full terminal emulation with colors and control codes
+
+See [SETUP.md](SETUP.md) for step-by-step instructions, manual fallback procedures, and comprehensive troubleshooting.- **PTY Support**: Full terminal emulation with colors and control codes
+
 - **Session Management**: Persistent terminal sessions during user login
-- **Resize Support**: Dynamic terminal resizing
+
+---- **Resize Support**: Dynamic terminal resizing
+
 - **Secure Connection**: SSH-based authentication and encryption
+
+## What It Does
 
 ## Firewall Management
 
-The firewall tab provides comprehensive firewall management:
+### System Monitoring
 
-- **Status Control**: Enable/disable the firewall with a single click
-- View current firewall status (active/inactive)
-- List all active firewall rules
-- Add new rules with protocol, port, and source IP
+- **CPU**: Usage, per-core load, temperatureThe firewall tab provides comprehensive firewall management:
+
+- **Memory**: Total/used/free/cached RAM
+
+- **Disk**: Storage usage per mount point- **Status Control**: Enable/disable the firewall with a single click
+
+- **Network**: Interface stats and bandwidth- View current firewall status (active/inactive)
+
+- **System**: Uptime, kernel, OS info- List all active firewall rules
+
+- **Temperature**: Real-time CPU temperature- Add new rules with protocol, port, and source IP
+
 - Delete existing rules
-- Monitor exposed ports and their firewall status
 
-### Supported Tools
+### Web Terminal- Monitor exposed ports and their firewall status
 
-- **ufw** (Ubuntu/Debian firewall)
-- **iptables** (fallback for other distributions)
+- SSH-based terminal with full PTY emulation
 
-### Requirements
+- Colors and control codes fully supported### Supported Tools
 
-Firewall management requires sudo access to firewall commands. Configure passwordless sudo for the user running PanelOS:
+- Dynamic terminal resizing
 
-```bash
-# For ufw (Ubuntu/Debian)
+- Session persists while logged in- **ufw** (Ubuntu/Debian firewall)
+
+- 30-minute idle timeout- **iptables** (fallback for other distributions)
+
+
+
+### Firewall Management### Requirements
+
+- Enable/disable firewall
+
+- List active rulesFirewall management requires sudo access to firewall commands. Configure passwordless sudo for the user running PanelOS:
+
+- Add/delete rules by port, protocol
+
+- View exposed ports```bash
+
+- Supports ufw (Ubuntu/Debian) and iptables# For ufw (Ubuntu/Debian)
+
 echo "username ALL=(ALL) NOPASSWD: /usr/sbin/ufw" | sudo tee /etc/sudoers.d/panelos-ufw
 
+---
+
 # For iptables (other distributions)
-echo "username ALL=(ALL) NOPASSWD: /usr/sbin/iptables" | sudo tee /etc/sudoers.d/panelos-iptables
+
+## Architecture Overviewecho "username ALL=(ALL) NOPASSWD: /usr/sbin/iptables" | sudo tee /etc/sudoers.d/panelos-iptables
+
 ```
 
-Replace `username` with the actual username running PanelOS.
+```
 
-### Configuration
+┌─────────────────────────────────────┐Replace `username` with the actual username running PanelOS.
 
-Set `FIREWALL_ENABLED=false` in your environment to disable firewall management entirely.
+│         Frontend (Browser)          │
 
-**Note**: Even with `FIREWALL_ENABLED=true`, firewall management will show "Setup Required" until sudo permissions are configured using the setup script. The web interface will display a "Show Setup Instructions" button with detailed commands.
+│  • Vanilla JS + Tailwind CSS        │### Configuration
 
-## Authentication & Security
+│  • Socket.io for real-time data     │
 
-### SSH-Based Authentication
-- **Secure Login**: Uses SSH credentials for system access
-- **Session Management**: HTTP sessions with configurable timeouts
-- **Rate Limiting**: Configurable login attempt limits
-- **Input Sanitization**: Protection against injection attacks
+└──────────────┬──────────────────────┘Set `FIREWALL_ENABLED=false` in your environment to disable firewall management entirely.
 
-### Security Features
-- **Helmet.js**: Security headers and XSS protection
-- **CORS**: Configurable cross-origin resource sharing
-- **HTTPS Ready**: Environment-based SSL configuration
-- **Logging**: Comprehensive audit logging with Winston
+               │
 
-## Architecture
+        Socket.io / REST API**Note**: Even with `FIREWALL_ENABLED=true`, firewall management will show "Setup Required" until sudo permissions are configured using the setup script. The web interface will display a "Show Setup Instructions" button with detailed commands.
 
-### Backend Services
-- **AuthService**: Handles SSH authentication and session management
+               │
+
+┌──────────────▼──────────────────────┐## Authentication & Security
+
+│      Backend (Node.js/Express)      │
+
+├──────────────────────────────────────┤### SSH-Based Authentication
+
+│  Services:                           │- **Secure Login**: Uses SSH credentials for system access
+
+│  • AuthService (SSH validation)      │- **Session Management**: HTTP sessions with configurable timeouts
+
+│  • MetricsService (system info)      │- **Rate Limiting**: Configurable login attempt limits
+
+│  • TerminalService (PTY sessions)    │- **Input Sanitization**: Protection against injection attacks
+
+│  • FirewallService (ufw/iptables)    │
+
+│  • RateLimiter (brute force protect) │### Security Features
+
+└──────────────┬──────────────────────┘- **Helmet.js**: Security headers and XSS protection
+
+               │- **CORS**: Configurable cross-origin resource sharing
+
+        System & SSH- **HTTPS Ready**: Environment-based SSL configuration
+
+               │- **Logging**: Comprehensive audit logging with Winston
+
+    ┌──────────┴──────────┐
+
+    │                     │## Architecture
+
+  SSH (/etc/passwd)   System Files
+
+  (auth, terminal)    (/proc, /sys)### Backend Services
+
+```- **AuthService**: Handles SSH authentication and session management
+
 - **MetricsService**: Collects system information using systeminformation library
-- **TerminalService**: Manages SSH terminal sessions with node-pty
-- **FirewallService**: Interfaces with ufw/iptables for firewall management
-- **RateLimiter**: Prevents brute force attacks
 
-### API Layer
-RESTful API endpoints with JSON responses and proper error handling.
+### Tech Stack- **TerminalService**: Manages SSH terminal sessions with node-pty
 
-### Frontend
+- **Backend**: Node.js (ES modules) + Express.js- **FirewallService**: Interfaces with ufw/iptables for firewall management
+
+- **Real-time**: Socket.io (WebSocket + polling fallback)- **RateLimiter**: Prevents brute force attacks
+
+- **System**: systeminformation library
+
+- **Terminal**: node-pty + SSH2### API Layer
+
+- **Logging**: Winston with daily rotationRESTful API endpoints with JSON responses and proper error handling.
+
+- **Auth**: SSH-based (no database)
+
+- **Frontend**: Vanilla JS + Tailwind CSS (CDN)### Frontend
+
 - **Vanilla JavaScript**: No heavy frameworks for lightweight performance
-- **Tailwind CSS**: Utility-first CSS framework for responsive design
+
+---- **Tailwind CSS**: Utility-first CSS framework for responsive design
+
 - **Socket.io**: Real-time bidirectional communication
-- **Responsive Design**: Works on desktop and mobile devices
 
-## How It Works
+## Configuration- **Responsive Design**: Works on desktop and mobile devices
 
-### Setup Script (`setup.sh`) - Detailed Explanation
 
-The setup script automates the complete initialization of PanelOS:
 
-1. **Root Permission Verification**
-   - Checks if script is run with `sudo`
+All configuration via `.env` file. See [SETUP.md](SETUP.md) for details.## How It Works
+
+
+
+**Key Variables:**### Setup Script (`setup.sh`) - Detailed Explanation
+
+- `PORT` - HTTP port (default: 3000)
+
+- `SSH_HOST` - SSH target (default: localhost)The setup script automates the complete initialization of PanelOS:
+
+- `SESSION_TIMEOUT` - Session lifetime in ms (default: 30 mins)
+
+- `FIREWALL_ENABLED` - Enable firewall management (default: true)1. **Root Permission Verification**
+
+- `LOG_LEVEL` - Logging verbosity (default: info)   - Checks if script is run with `sudo`
+
    - Extracts the non-root user who invoked sudo using `$SUDO_USER`
-   - This allows operations to be performed with root privileges while tracking the actual user
 
-2. **System Requirements Check**
-   - Detects OS and kernel version from `/etc/os-release`
+**Generate a secure SESSION_SECRET:**   - This allows operations to be performed with root privileges while tracking the actual user
+
+```bash
+
+openssl rand -hex 642. **System Requirements Check**
+
+```   - Detects OS and kernel version from `/etc/os-release`
+
    - Searches for Node.js in multiple locations:
-     - System-wide installation
+
+---     - System-wide installation
+
      - User's `.nvm` directory (Node Version Manager)
-     - User's `.fnm` directory (Fast Node Manager)
+
+## Security Model     - User's `.fnm` directory (Fast Node Manager)
+
      - User's `.volta` directory (Volta version manager)
-     - Fallback paths: `/usr/local/bin/node`, `/usr/bin/node`
-   - Warns if Node.js not found (but doesn't fail - users can install it manually)
-   - Checks for SSH client and firewall tools (ufw/iptables)
 
-3. **Firewall Permission Setup**
+### Authentication     - Fallback paths: `/usr/local/bin/node`, `/usr/bin/node`
+
+- Uses SSH credentials (no separate user database)   - Warns if Node.js not found (but doesn't fail - users can install it manually)
+
+- Credentials validated at login, not stored   - Checks for SSH client and firewall tools (ufw/iptables)
+
+- HTTP sessions with configurable timeout
+
+- Rate limiting: 5 attempts per minute per IP3. **Firewall Permission Setup**
+
    - Creates sudoers files for passwordless execution:
-     - `/etc/sudoers.d/panelos-ufw` - Allows `ufw` commands without password
-     - `/etc/sudoers.d/panelos-iptables` - Allows `iptables` commands without password
-   - Format: `username ALL=(ALL) NOPASSWD: /path/to/command`
-   - Verifies sudo access works with a test command
-   - Sets proper permissions (0440) on sudoers files
 
-4. **System Monitoring Permissions**
-   - Verifies read access to `/sys/class/thermal` for temperature monitoring
-   - Checks read access to `/proc/cpuinfo` for CPU information
-   - These files are typically readable without special permissions
+### Data Protection     - `/etc/sudoers.d/panelos-ufw` - Allows `ufw` commands without password
 
-5. **Dependency Installation**
-   - Updates apt package cache
-   - Installs system tools: `curl`, `wget`, `sysstat`, `lm-sensors`, `net-tools`, `lsof`
-   - These provide data for system monitoring
+- No password logging     - `/etc/sudoers.d/panelos-iptables` - Allows `iptables` commands without password
+
+- Session cookies: HTTP-only, SameSite=Lax   - Format: `username ALL=(ALL) NOPASSWD: /path/to/command`
+
+- Input validation on all endpoints   - Verifies sudo access works with a test command
+
+- SQL injection/XSS prevention via input sanitization   - Sets proper permissions (0440) on sudoers files
+
+
+
+### Firewall Access4. **System Monitoring Permissions**
+
+- Requires passwordless `sudo` for firewall commands   - Verifies read access to `/sys/class/thermal` for temperature monitoring
+
+- Only specific tools (ufw/iptables) have sudo access   - Checks read access to `/proc/cpuinfo` for CPU information
+
+- All firewall actions logged   - These files are typically readable without special permissions
+
+
+
+### Logging5. **Dependency Installation**
+
+- Console: ERROR level only (clean output)   - Updates apt package cache
+
+- Files: Error and app logs with daily rotation   - Installs system tools: `curl`, `wget`, `sysstat`, `lm-sensors`, `net-tools`, `lsof`
+
+- 3-day retention, auto-cleanup   - These provide data for system monitoring
+
+- Location: `logs/error-YYYY-MM-DD.log`, `logs/app-YYYY-MM-DD.log`
 
 6. **Environment Template Creation**
-   - Creates `.env.example` with all required environment variables
+
+---   - Creates `.env.example` with all required environment variables
+
    - Includes comments about security recommendations
-   - Users copy and modify this to create `.env`
 
-7. **Optional Systemd Service Setup** (with `--systemd` flag)
-   - Creates `/etc/systemd/system/panelos.service`
-   - Enables auto-start on system boot
-   - Can manage service with `systemctl`
+## API Reference   - Users copy and modify this to create `.env`
 
-### Firewall Service - Sudo Access Mechanism
 
-The firewall service uses a multi-step approach to gain necessary privileges:
 
-1. **Tool Detection**
-   ```javascript
-   await execAsync('which ufw');           // Check if ufw exists
-   await execAsync('sudo -n ufw status');  // Test sudo access (non-interactive)
-   ```
+### Authentication7. **Optional Systemd Service Setup** (with `--systemd` flag)
 
-2. **Passwordless Sudo Configuration**
+- `POST /api/auth/login` - Login   - Creates `/etc/systemd/system/panelos.service`
+
+- `POST /api/auth/logout` - Logout   - Enables auto-start on system boot
+
+- `GET /api/auth/verify` - Check session   - Can manage service with `systemctl`
+
+
+
+### Metrics### Firewall Service - Sudo Access Mechanism
+
+- `GET /api/metrics/system` - Full system metrics
+
+- `GET /api/metrics/quick` - Real-time metrics (CPU, memory, temp)The firewall service uses a multi-step approach to gain necessary privileges:
+
+
+
+### Firewall1. **Tool Detection**
+
+- `GET /api/firewall/status` - Firewall enabled/disabled   ```javascript
+
+- `POST /api/firewall/status` - Enable/disable firewall   await execAsync('which ufw');           // Check if ufw exists
+
+- `GET /api/firewall/rules` - List active rules   await execAsync('sudo -n ufw status');  // Test sudo access (non-interactive)
+
+- `POST /api/firewall/rules` - Add rule   ```
+
+- `DELETE /api/firewall/rules/:id` - Delete rule
+
+- `GET /api/firewall/ports` - View exposed ports2. **Passwordless Sudo Configuration**
+
    - Setup script creates sudoers files with `NOPASSWD` directive
-   - Example: `user ALL=(ALL) NOPASSWD: /usr/sbin/ufw`
-   - The `-n` flag in `sudo -n` means non-interactive (fails if password needed)
 
-3. **Privilege Escalation**
+### Health   - Example: `user ALL=(ALL) NOPASSWD: /usr/sbin/ufw`
+
+- `GET /health` - Server status + uptime   - The `-n` flag in `sudo -n` means non-interactive (fails if password needed)
+
+
+
+---3. **Privilege Escalation**
+
    - When running firewall commands, they're prefixed with `sudo`
-   - The sudoers configuration allows these without password prompt
+
+## Development   - The sudoers configuration allows these without password prompt
+
    - Commands are executed via `child_process.exec()`
 
-4. **Security Considerations**
-   - Credentials are never stored for firewall operations
-   - Only the specific tools (ufw/iptables) can be run without password
-   - All firewall commands are logged
-   - User must still be authenticated via SSH for firewall operations
+### Available Scripts
 
-### Logging System - Daily Rotation & Retention
+```bash4. **Security Considerations**
+
+npm start          # Production server with signal handling   - Credentials are never stored for firewall operations
+
+npm run dev        # Development mode with auto-reload (nodemon)   - Only the specific tools (ufw/iptables) can be run without password
+
+npm run stop       # Stop any running server   - All firewall commands are logged
+
+npm run restart    # Restart the server   - User must still be authenticated via SSH for firewall operations
+
+npm run lint       # ESLint code analysis
+
+npm test           # Jest test suite### Logging System - Daily Rotation & Retention
+
+```
 
 The improved logging uses Winston with daily rotation:
 
-1. **Three Log Destinations**
-   - **Console**: ERROR level only (clean terminal output)
-   - **Error Log**: `logs/error-YYYY-MM-DD.log` - Error messages only
-   - **App Log**: `logs/app-YYYY-MM-DD.log` - All messages (info+)
+### Project Structure
 
-2. **Daily Rotation**
-   - New log files created daily with date in filename
-   - Rotation happens at midnight automatically
-   - Files follow pattern: `error-2024-11-02.log`, `app-2024-11-03.log`, etc.
+```1. **Three Log Destinations**
 
-3. **3-Day Retention Policy**
-   - `maxDays: '3d'` automatically deletes logs older than 3 days
-   - No manual cleanup needed
-   - Prevents unlimited disk usage growth
+.   - **Console**: ERROR level only (clean terminal output)
 
-4. **File Size Management**
-   - `maxSize: '20m'` rotates file if it exceeds 20MB
-   - Combined with daily rotation for comprehensive log management
+├── server.js                 # Main Express + Socket.io server   - **Error Log**: `logs/error-YYYY-MM-DD.log` - Error messages only
 
-### Authentication & Credential Flow
+├── services/   - **App Log**: `logs/app-YYYY-MM-DD.log` - All messages (info+)
 
-1. **Login Phase**
+│   ├── auth.service.js       # SSH authentication
+
+│   ├── metrics.service.js    # System metrics collection2. **Daily Rotation**
+
+│   ├── terminal.service.js   # PTY session management   - New log files created daily with date in filename
+
+│   ├── firewall.service.js   # Firewall operations   - Rotation happens at midnight automatically
+
+│   └── rate-limiter.js       # Brute force protection   - Files follow pattern: `error-2024-11-02.log`, `app-2024-11-03.log`, etc.
+
+├── public/
+
+│   ├── index.html            # Dashboard UI3. **3-Day Retention Policy**
+
+│   ├── login.html            # Login page   - `maxDays: '3d'` automatically deletes logs older than 3 days
+
+│   └── js/   - No manual cleanup needed
+
+│       ├── dashboard.js      # Dashboard logic   - Prevents unlimited disk usage growth
+
+│       └── terminal.js       # Terminal emulator
+
+├── logs/                     # Application logs (auto-rotated)4. **File Size Management**
+
+├── ecosystem.config.cjs      # PM2 configuration   - `maxSize: '20m'` rotates file if it exceeds 20MB
+
+├── setup.sh                  # Automated setup script   - Combined with daily rotation for comprehensive log management
+
+└── SETUP.md                  # Complete setup guide
+
+```### Authentication & Credential Flow
+
+
+
+---1. **Login Phase**
+
    - User enters SSH username and password
-   - Credentials are validated and tested via SSH connection
-   - On success, HTTP session is created
-   - **Credentials NOT stored** in session (security improvement)
 
-2. **Terminal Access Phase**
-   - When user opens terminal, UI prompts for password again
-   - Password is sent with `terminal:start` socket event
+## Process Management   - Credentials are validated and tested via SSH connection
+
+   - On success, HTTP session is created
+
+### Using PM2 (Recommended for Production)   - **Credentials NOT stored** in session (security improvement)
+
+
+
+```bash2. **Terminal Access Phase**
+
+# Start   - When user opens terminal, UI prompts for password again
+
+pm2 start ecosystem.config.cjs --env development   - Password is sent with `terminal:start` socket event
+
    - Server validates user is authenticated before accepting
-   - Terminal session uses provided credentials for SSH
+
+# View status   - Terminal session uses provided credentials for SSH
+
+pm2 status
 
 3. **Secure Handling**
-   - Passwords only transmitted over HTTPS in production
-   - No password logging
+
+# View logs   - Passwords only transmitted over HTTPS in production
+
+pm2 logs panelos   - No password logging
+
    - Session timeout (default 30 minutes)
-   - Rate limiting on failed login attempts (5 attempts per minute)
+
+# Restart   - Rate limiting on failed login attempts (5 attempts per minute)
+
+pm2 restart panelos
 
 ### Metrics Collection Strategy
 
-1. **Real-Time Updates** (every 2 seconds)
+# Stop
+
+pm2 stop panelos1. **Real-Time Updates** (every 2 seconds)
+
    - CPU usage, memory usage, temperature
-   - Transmitted via WebSocket (low overhead)
-   - Limited data to keep network traffic minimal
 
-2. **Detailed Metrics** (every 15 seconds)
+# Enable auto-start on reboot   - Transmitted via WebSocket (low overhead)
+
+pm2 save   - Limited data to keep network traffic minimal
+
+pm2 startup systemd -u $(whoami) --hp $(eval echo ~$(whoami))
+
+```2. **Detailed Metrics** (every 15 seconds)
+
    - Full system information
-   - Disk usage, network interfaces
-   - OS details, uptime
-   - Fetched via HTTP REST API
 
-3. **Error Resilience**
-   - If individual metric collection fails, others continue
-   - Fallback values prevent UI crashes
+### Using npm (Simple)   - Disk usage, network interfaces
+
+   - OS details, uptime
+
+```bash   - Fetched via HTTP REST API
+
+npm start    # Run in foreground
+
+npm run dev  # With auto-reload3. **Error Resilience**
+
+npm run stop # Stop background process   - If individual metric collection fails, others continue
+
+```   - Fallback values prevent UI crashes
+
    - Errors logged but not displayed to user
+
+---
 
 ## Installation
 
+## Monitoring & Logs
+
 ### Prerequisites
-- Node.js 16+
-- Linux system with SSH access
-- ufw or iptables (for firewall management)
+
+### View Logs- Node.js 16+
+
+```bash- Linux system with SSH access
+
+# Real-time- ufw or iptables (for firewall management)
+
+pm2 logs panelos
 
 ### Setup Steps
-1. Run the setup script as root:
-   ```bash
-   sudo ./setup.sh
-   ```
 
-2. Copy environment configuration:
+# Historical (past errors)1. Run the setup script as root:
+
+tail -50 logs/error-*.log   ```bash
+
+   sudo ./setup.sh
+
+# Search logs   ```
+
+grep "ERROR\|WARN" logs/*.log
+
+```2. Copy environment configuration:
+
    ```bash
-   cp .env.example .env
-   # Edit .env with your settings
-   ```
+
+### Monitor Resources   cp .env.example .env
+
+```bash   # Edit .env with your settings
+
+# PM2 real-time monitoring   ```
+
+pm2 monit
 
 3. Install dependencies and start:
-   ```bash
-   npm install
-   npm start
+
+# System resource usage   ```bash
+
+ps aux | grep node   npm install
+
+```   npm start
+
    ```
+
+---
 
    The server will start and display connection information. Press `Ctrl+C` to stop gracefully.
 
+## Troubleshooting
+
 ### Server Management
 
+### Common Issues
+
 #### Option 1: Simple Script (Development)
-- `npm start` - Start the server with proper signal handling
-- `npm run stop` - Stop any running server instances  
-- `npm run restart` - Restart the server
-- `npm run dev` - Start in development mode with auto-reload
 
-#### Option 2: PM2 Process Manager (Recommended for Production) ⭐
+**Port 3000 already in use?**- `npm start` - Start the server with proper signal handling
 
-PM2 provides professional process management with auto-restart, log rotation, and resource monitoring.
+```bash- `npm run stop` - Stop any running server instances  
 
-**⚡ QUICKEST WAY TO RUN:**
+lsof -i :3000              # Find process- `npm run restart` - Restart the server
 
-See **[QUICKSTART.md](QUICKSTART.md)** for step-by-step instructions on all Linux distributions, or use the automated setup:
+kill -9 <PID>              # Kill it- `npm run dev` - Start in development mode with auto-reload
+
+# Or change PORT in .env
+
+```#### Option 2: PM2 Process Manager (Recommended for Production) ⭐
+
+
+
+**SSH authentication failing?**PM2 provides professional process management with auto-restart, log rotation, and resource monitoring.
 
 ```bash
-git clone https://github.com/AdityaMandage/PanelOS.git
-cd PanelOS
-chmod +x setup.sh
-sudo ./setup.sh
+
+ssh username@localhost     # Test SSH works**⚡ QUICKEST WAY TO RUN:**
+
+sudo systemctl status ssh  # Check SSH service
+
+```See **[QUICKSTART.md](QUICKSTART.md)** for step-by-step instructions on all Linux distributions, or use the automated setup:
+
+
+
+**Firewall errors?**```bash
+
+```bashgit clone https://github.com/AdityaMandage/PanelOS.git
+
+sudo ./setup.sh            # Re-run setupcd PanelOS
+
+sudo -n ufw status         # Test sudo accesschmod +x setup.sh
+
+```sudo ./setup.sh
+
 ```
 
-**Manual PM2 Commands:**
-```bash
-# Install PM2 globally
-npm install -g pm2
+**Application won't start?**
 
-# Start PanelOS in development mode
-pm2 start ecosystem.config.cjs --env development
+```bash**Manual PM2 Commands:**
 
-# View status
-pm2 status
+pm2 logs panelos           # Check logs```bash
 
-# View logs
+tail logs/error-*.log      # View errors# Install PM2 globally
+
+```npm install -g pm2
+
+
+
+**Cannot access from another machine?**# Start PanelOS in development mode
+
+```bashpm2 start ecosystem.config.cjs --env development
+
+grep HOST .env             # Should be 0.0.0.0
+
+curl -I http://localhost:3000  # Test locally# View status
+
+```pm2 status
+
+
+
+**For more details**, see [SETUP.md](SETUP.md) - comprehensive troubleshooting guide.# View logs
+
 pm2 logs panelos
 
+---
+
 # Restart
-pm2 restart panelos
 
-# Stop
-pm2 stop panelos
+## Roadmap & Contributionspm2 restart panelos
 
-# Auto-start on boot
-pm2 startup systemd -u $(whoami) --hp $(eval echo ~$(whoami))
-pm2 save
-```
 
-**PM2 Benefits:**
+
+### Planned Features# Stop
+
+- Process manager (view/kill processes)pm2 stop panelos
+
+- Docker container monitoring
+
+- Service status page# Auto-start on boot
+
+- Multi-user + RBACpm2 startup systemd -u $(whoami) --hp $(eval echo ~$(whoami))
+
+- Database backend for logspm2 save
+
+- Distributed monitoring (multiple systems)```
+
+- Mobile app
+
+- Advanced analytics & trending**PM2 Benefits:**
+
 - ✅ Runs in background as a daemon
-- ✅ Auto-restarts on crash
-- ✅ Memory limits (500MB max)
-- ✅ Built-in log management
-- ✅ Process monitoring and health checks
-- ✅ Graceful shutdown handling
-````
-- ✅ Perfect for 24/7 operation
 
-**Production Setup with Auto-Start:**
-```bash
-# Start in production mode
-npm run start:pm2:prod
+### Contributing- ✅ Auto-restarts on crash
 
-# Save configuration
-pm2 save
+We welcome contributions in any form:- ✅ Memory limits (500MB max)
 
-# Enable auto-start on system reboot
+- **Bug reports**: Open an issue with logs and environment- ✅ Built-in log management
+
+- **Features**: Suggest ideas or implement them- ✅ Process monitoring and health checks
+
+- **Tests**: Unit/integration tests appreciated- ✅ Graceful shutdown handling
+
+- **Documentation**: Clarifications and examples````
+
+- **Performance**: Optimization suggestions- ✅ Perfect for 24/7 operation
+
+
+
+**Areas looking for help:****Production Setup with Auto-Start:**
+
+- Test coverage (Jest)```bash
+
+- Additional firewall tool support (firewalld, nftables)# Start in production mode
+
+- Dark/light theme togglenpm run start:pm2:prod
+
+- Internationalization (i18n)
+
+- Docker containerization# Save configuration
+
+- Reverse proxy examples (nginx + SSL)pm2 save
+
+
+
+---# Enable auto-start on system reboot
+
 pm2 startup
 
+## Requirements
+
 # View setup instructions
-npm run pm2:status
+
+- **OS**: Any Linux distributionnpm run pm2:status
+
+- **Node.js**: v16 or newer```
+
+- **RAM**: 512MB minimum (1GB recommended)
+
+- **Disk**: 200MB free**All PM2 Commands:**
+
+- **Internet**: For initial setup only```bash
+
+- **Privileges**: `sudo` access for setup + firewall confignpm run start:pm2          # Start in development
+
+npm run start:pm2:prod     # Start in production
+
+**Supported Distros:**npm run restart:pm2        # Restart PanelOS
+
+- Debian / Ubuntu / Raspberry Pi OSnpm run stop:pm2           # Stop PanelOS
+
+- Fedora / RHEL / CentOS / Rocky / AlmaLinuxnpm run pm2:status         # View status
+
+- Arch / Manjaronpm run pm2:logs           # View live logs (Ctrl+C to exit)
+
+- openSUSEnpm run pm2:kill           # Stop PM2 daemon
+
 ```
 
-**All PM2 Commands:**
-```bash
-npm run start:pm2          # Start in development
-npm run start:pm2:prod     # Start in production
-npm run restart:pm2        # Restart PanelOS
-npm run stop:pm2           # Stop PanelOS
-npm run pm2:status         # View status
-npm run pm2:logs           # View live logs (Ctrl+C to exit)
-npm run pm2:kill           # Stop PM2 daemon
-```
+---
 
 **Manual PM2 Commands:**
-```bash
-pm2 start ecosystem.config.cjs                   # Start app
-pm2 start ecosystem.config.cjs --env production  # Production mode
-pm2 stop panelos                                 # Stop app
-pm2 restart panelos                              # Restart app
-pm2 delete panelos                               # Remove from PM2
-pm2 logs panelos                                 # View logs
-pm2 monit                                        # Real-time monitoring
-pm2 info panelos                                 # Detailed info
-pm2 save                                         # Persist process list
-```
 
-### Setup Script Features
+## Important Notes```bash
+
+pm2 start ecosystem.config.cjs                   # Start app
+
+### Security Considerationspm2 start ecosystem.config.cjs --env production  # Production mode
+
+- **Production**: Use HTTPS with reverse proxy (nginx + certbot)pm2 stop panelos                                 # Stop app
+
+- **Credentials**: Use strong SSH passwords or SSH keyspm2 restart panelos                              # Restart app
+
+- **Updates**: Keep Node.js and dependencies updatedpm2 delete panelos                               # Remove from PM2
+
+- **Firewall**: Properly configure system firewall in addition to PanelOSpm2 logs panelos                                 # View logs
+
+- **Access Control**: Restrict network access to dashboard via firewallpm2 monit                                        # Real-time monitoring
+
+pm2 info panelos                                 # Detailed info
+
+### Performancepm2 save                                         # Persist process list
+
+- Designed for single system (Raspberry Pi 3B+ and up)```
+
+- ~50-100MB memory footprint
+
+- Minimal CPU overhead### Setup Script Features
+
+- Not suitable for large-scale multi-system monitoring (use Prometheus/Grafana instead)
 
 The `setup.sh` script automatically:
-- ✅ Detects distro package manager and installs base dependencies (curl, git, openssl, sensors, firewall tools)
-- ✅ Installs or upgrades Node.js (16+) plus npm automatically
-- ✅ Installs PM2 globally and configures it to start PanelOS on boot
-- ✅ Creates `.env.example`, generates `.env` with a secure session secret, and installs Node modules as the invoking user
-- ✅ Grants passwordless sudo for firewall commands (ufw/iptables) and launches PanelOS immediately under PM2
-- ✅ Verifies the dashboard is reachable on port 3000 and prints PM2 usage reminders
 
-For a complete step-by-step provisioning walkthrough, including manual fallbacks, read [`SETUP.md`](SETUP.md).
+### Limitations- ✅ Detects distro package manager and installs base dependencies (curl, git, openssl, sensors, firewall tools)
 
-### Manual Setup (Alternative)
+- Single-instance only (no clustering)- ✅ Installs or upgrades Node.js (16+) plus npm automatically
 
-If you prefer manual setup, configure sudo access for firewall commands:
+- In-memory sessions (lost on restart)- ✅ Installs PM2 globally and configures it to start PanelOS on boot
 
-```bash
+- SSH-only authentication (no LDAP/AD)- ✅ Creates `.env.example`, generates `.env` with a secure session secret, and installs Node modules as the invoking user
+
+- Metrics not persisted (no historical data)- ✅ Grants passwordless sudo for firewall commands (ufw/iptables) and launches PanelOS immediately under PM2
+
+- One user per terminal session- ✅ Verifies the dashboard is reachable on port 3000 and prints PM2 usage reminders
+
+
+
+---For a complete step-by-step provisioning walkthrough, including manual fallbacks, read [`SETUP.md`](SETUP.md).
+
+
+
+## License### Manual Setup (Alternative)
+
+
+
+MIT License - See LICENSE file for detailsIf you prefer manual setup, configure sudo access for firewall commands:
+
+
+
+---```bash
+
 # For ufw (Ubuntu/Debian)
-echo "username ALL=(ALL) NOPASSWD: /usr/sbin/ufw" | sudo tee /etc/sudoers.d/panelos-ufw
 
-# For iptables (other distributions)
-echo "username ALL=(ALL) NOPASSWD: /usr/sbin/iptables" | sudo tee /etc/sudoers.d/panelos-iptables
-```
+## Supportecho "username ALL=(ALL) NOPASSWD: /usr/sbin/ufw" | sudo tee /etc/sudoers.d/panelos-ufw
+
+
+
+1. **Setup Issues**: See [SETUP.md](SETUP.md) for comprehensive guide# For iptables (other distributions)
+
+2. **Logs**: Check `pm2 logs panelos` and `logs/` directoryecho "username ALL=(ALL) NOPASSWD: /usr/sbin/iptables" | sudo tee /etc/sudoers.d/panelos-iptables
+
+3. **Documentation**: Read inline code comments and architecture notes below```
+
+4. **Issues**: GitHub issues with error logs and environment details
 
 Replace `username` with your actual username.
 
+---
+
 ## Environment Variables
 
+## Architecture Deep Dive
+
 | Variable | Description | Default |
-|----------|-------------|---------|
-| `SSH_HOST` | SSH server hostname | localhost |
-| `SSH_PORT` | SSH server port | 22 |
-| `SSH_TIMEOUT` | SSH connection timeout (ms) | 10000 |
-| `SESSION_SECRET` | Session encryption key | (required) |
-| `SESSION_TIMEOUT` | Session timeout (ms) | 1800000 (30min) |
-| `RATE_LIMIT_LOGIN` | Max login attempts | 5 |
-| `RATE_LIMIT_WINDOW` | Rate limit window (ms) | 60000 |
-| `PORT` | Server port | 3000 |
+
+### Request Flow: Authentication|----------|-------------|---------|
+
+```| `SSH_HOST` | SSH server hostname | localhost |
+
+1. User submits login form (username + password)| `SSH_PORT` | SSH server port | 22 |
+
+2. Server validates input format| `SSH_TIMEOUT` | SSH connection timeout (ms) | 10000 |
+
+3. Server tests SSH connection with credentials| `SESSION_SECRET` | Session encryption key | (required) |
+
+4. If successful: HTTP session created| `SESSION_TIMEOUT` | Session timeout (ms) | 1800000 (30min) |
+
+5. If failed: Return 401 with error| `RATE_LIMIT_LOGIN` | Max login attempts | 5 |
+
+→ Credentials NOT stored anywhere| `RATE_LIMIT_WINDOW` | Rate limit window (ms) | 60000 |
+
+```| `PORT` | Server port | 3000 |
+
 | `HOST` | Server host | 0.0.0.0 |
-| `FIREWALL_ENABLED` | Enable/disable firewall management | true |
-| `LOG_LEVEL` | Logging level | info |
 
-## API Endpoints
+### Request Flow: Terminal Session| `FIREWALL_ENABLED` | Enable/disable firewall management | true |
 
-### Authentication
-- `POST /api/auth/login` - User login
-- `POST /api/auth/logout` - User logout
-- `GET /api/auth/verify` - Verify session
+```| `LOG_LEVEL` | Logging level | info |
 
-### System Monitoring
+1. User clicks "Terminal" tab
+
+2. Frontend prompts for password (fresh credentials)## API Endpoints
+
+3. Send terminal:start event with user/pass/rows/cols
+
+4. Server validates user is authenticated### Authentication
+
+5. Server opens SSH shell + PTY- `POST /api/auth/login` - User login
+
+6. Bi-directional stream: client ↔ terminal- `POST /api/auth/logout` - User logout
+
+7. On disconnect: cleanup session- `GET /api/auth/verify` - Verify session
+
+→ SSH connection persists while tab open
+
+```### System Monitoring
+
 - `GET /api/metrics/system` - Full system metrics
-- `GET /api/metrics/quick` - Quick metrics for real-time updates
 
-### Firewall
-- `GET /api/firewall/status` - Get firewall status
-- `POST /api/firewall/status` - Enable/disable firewall
-- `GET /api/firewall/rules` - Get active rules
-- `POST /api/firewall/rules` - Add new rule
-- `DELETE /api/firewall/rules/:id` - Delete rule
-- `GET /api/firewall/ports` - Get exposed ports
+### Request Flow: Firewall Management- `GET /api/metrics/quick` - Quick metrics for real-time updates
 
-### System
-- `GET /health` - Health check endpoint
+```
 
-## Development
+1. User clicks firewall rule action### Firewall
 
-### Available Scripts
+2. Server calls FirewallService- `GET /api/firewall/status` - Get firewall status
+
+3. Service auto-detects ufw vs iptables- `POST /api/firewall/status` - Enable/disable firewall
+
+4. Executes `sudo -n <tool>` (non-interactive)- `GET /api/firewall/rules` - Get active rules
+
+5. Returns result or error- `POST /api/firewall/rules` - Add new rule
+
+→ Requires passwordless sudo setup- `DELETE /api/firewall/rules/:id` - Delete rule
+
+```- `GET /api/firewall/ports` - Get exposed ports
+
+
+
+### Metrics Collection Strategy### System
+
+```- `GET /health` - Health check endpoint
+
+Real-time (every 2s via Socket.io):
+
+  • CPU usage %## Development
+
+  • Memory usage %
+
+  • Temperature### Available Scripts
+
 - `npm start` - Start production server with graceful shutdown
-- `npm run start:direct` - Start server directly (bypass wrapper)
-- `npm run dev` - Start development server with nodemon
-- `npm run stop` - Stop any running server instances
-- `npm run restart` - Restart the server
-- `npm run lint` - Run ESLint code analysis
-- `npm test` - Run Jest test suite
 
-### Project Structure
-```
-├── server.js              # Main application server
-├── services/              # Business logic services
-│   ├── auth.service.js
+Full metrics (every 15s via REST API):- `npm run start:direct` - Start server directly (bypass wrapper)
+
+  • CPU per-core- `npm run dev` - Start development server with nodemon
+
+  • Memory details- `npm run stop` - Stop any running server instances
+
+  • Disk per mount- `npm run restart` - Restart the server
+
+  • Network interfaces- `npm run lint` - Run ESLint code analysis
+
+  • System info- `npm test` - Run Jest test suite
+
+
+
+If metric collection fails:### Project Structure
+
+  • Return fallback value (0, N/A)```
+
+  • Log error internally├── server.js              # Main application server
+
+  • Continue with other metrics├── services/              # Business logic services
+
+```│   ├── auth.service.js
+
 │   ├── metrics.service.js
-│   ├── terminal.service.js
-│   └── firewall.service.js
-├── public/                # Frontend assets
-│   ├── index.html
-│   ├── login.html
-│   └── js/
-│       ├── dashboard.js
-│       └── terminal.js
-├── logs/                  # Application logs
+
+### Service Lifecycle│   ├── terminal.service.js
+
+```│   └── firewall.service.js
+
+Server Startup:├── public/                # Frontend assets
+
+  1. Load environment variables (.env)│   ├── index.html
+
+  2. Initialize all services (Auth, Metrics, Terminal, Firewall)│   ├── login.html
+
+  3. Setup logging (Winston + daily rotation)│   └── js/
+
+  4. Setup session management (in-memory store)│       ├── dashboard.js
+
+  5. Start Express server + Socket.io│       └── terminal.js
+
+  6. Print startup info├── logs/                  # Application logs
+
 └── package.json
-```
 
-## Security Considerations
+User Connects:```
 
-- **SSH Keys**: Consider using SSH key authentication for better security
-- **Firewall**: Keep ufw/iptables properly configured
+  1. Browser makes WebSocket connection
+
+  2. Socket.io establishes connection## Security Considerations
+
+  3. Session middleware validates HTTP cookie
+
+  4. Client emits 'metrics:subscribe'- **SSH Keys**: Consider using SSH key authentication for better security
+
+  5. Server starts metrics polling interval- **Firewall**: Keep ufw/iptables properly configured
+
 - **Environment**: Use strong session secrets in production
-- **HTTPS**: Enable SSL/TLS in production environments
-- **Updates**: Keep dependencies updated for security patches
 
-## Systemd Service (Optional)
+User Closes Terminal:- **HTTPS**: Enable SSL/TLS in production environments
 
-For production deployment, set up PanelOS as a systemd service:
+  1. Browser disconnects Socket.io- **Updates**: Keep dependencies updated for security patches
 
-```bash
-# Run setup with systemd support
-sudo ./setup.sh --systemd
+  2. Server cleanup handler triggered
 
-# Or manually enable the service
-sudo systemctl enable panelos
-sudo systemctl start panelos
+  3. Terminal session closed + SSH connection ended## Systemd Service (Optional)
+
+  4. Metrics polling stopped
+
+  5. Interval clearedFor production deployment, set up PanelOS as a systemd service:
+
+
+
+Server Shutdown:```bash
+
+  1. SIGTERM/SIGINT received# Run setup with systemd support
+
+  2. Stop accepting new connectionssudo ./setup.sh --systemd
+
+  3. Cleanup services (terminate PTYs, etc.)
+
+  4. Close server# Or manually enable the service
+
+  5. Exit gracefullysudo systemctl enable panelos
+
+```sudo systemctl start panelos
+
 sudo systemctl status panelos
-```
 
-## Troubleshooting
+### Error Handling Philosophy```
 
-### Firewall Permission Errors
-If you see firewall-related errors, run the setup script:
+- **User Errors** (bad input): Return 4xx with clear message
+
+- **Service Errors** (SSH timeout): Return 5xx with generic message, log details## Troubleshooting
+
+- **Partial Failures** (one metric fails): Continue with others, return fallbacks
+
+- **Session Errors**: Redirect to login### Firewall Permission Errors
+
+- **Rate Limit**: Return 429If you see firewall-related errors, run the setup script:
+
 ```bash
-sudo ./setup.sh
+
+---sudo ./setup.sh
+
 ```
+
+## For System Administrators
 
 ### Port Already in Use
-If port 3000 is busy, change the PORT in your `.env` file.
 
-### SSH Connection Issues
-Ensure SSH service is running and accessible:
-```bash
+### Recommended Production SetupIf port 3000 is busy, change the PORT in your `.env` file.
+
+
+
+```bash### SSH Connection Issues
+
+# 1. Create dedicated userEnsure SSH service is running and accessible:
+
+sudo useradd -m -s /bin/bash panelos```bash
+
 sudo systemctl status ssh
-```
 
-## Recent Improvements (v1.1.0)
+# 2. Clone and setup```
+
+sudo -u panelos git clone https://github.com/AdityaMandage/PanelOS.git
+
+cd /home/panelos/PanelOS## Recent Improvements (v1.1.0)
+
+sudo ./setup.sh
 
 ### Security & Robustness Enhancements
-- ✅ **Enhanced Logging**: Winston-based logging with daily rotation and 3-day retention
-  - Console: ERROR level only (clean output during operation)
-  - Files: All logs automatically rotated daily
-  - Prevents unlimited disk usage growth
-- ✅ **Credential Security**: Credentials no longer stored in sessions
-  - Passwords are validated once at login
-  - Terminal sessions require fresh credentials
-  - Reduces attack surface significantly
-- ✅ **Input Validation**: Enhanced validation on firewall rules and terminal dimensions
-  - Port range validation (1-65535)
-  - Terminal size bounds checking (5x10 to 500x500)
-  - IP/CIDR notation validation for firewall rules
-- ✅ **Session Timeout**: Terminal sessions now timeout after 30 minutes of inactivity
-  - Automatic cleanup of idle sessions
-  - Prevents resource leaks
-- ✅ **Error Handling**: Comprehensive error handling across all services
-  - Better error messages for users
-  - Improved error logging for debugging
-  - Graceful degradation when features unavailable
 
-### Code Quality Improvements
+# 3. Setup reverse proxy (nginx)- ✅ **Enhanced Logging**: Winston-based logging with daily rotation and 3-day retention
+
+# - SSL termination  - Console: ERROR level only (clean output during operation)
+
+# - Hostname binding  - Files: All logs automatically rotated daily
+
+# - Rate limiting  - Prevents unlimited disk usage growth
+
+- ✅ **Credential Security**: Credentials no longer stored in sessions
+
+# 4. Enable firewall (system level)  - Passwords are validated once at login
+
+sudo ufw enable  - Terminal sessions require fresh credentials
+
+sudo ufw allow 22/tcp  - Reduces attack surface significantly
+
+sudo ufw allow 443/tcp  # For nginx- ✅ **Input Validation**: Enhanced validation on firewall rules and terminal dimensions
+
+  - Port range validation (1-65535)
+
+# 5. Monitor  - Terminal size bounds checking (5x10 to 500x500)
+
+pm2 monit  - IP/CIDR notation validation for firewall rules
+
+tail -f logs/app-*.log- ✅ **Session Timeout**: Terminal sessions now timeout after 30 minutes of inactivity
+
+```  - Automatic cleanup of idle sessions
+
+  - Prevents resource leaks
+
+### Scaling Beyond Single System- ✅ **Error Handling**: Comprehensive error handling across all services
+
+  - Better error messages for users
+
+For monitoring multiple systems, consider:  - Improved error logging for debugging
+
+- Deploy PanelOS on each system separately  - Graceful degradation when features unavailable
+
+- Use centralized logging (ELK, Loki)
+
+- Or use Prometheus + Grafana for distributed monitoring### Code Quality Improvements
+
 - ✅ **Service Robustness**: All services improved with better error recovery
-  - Metrics continue if one metric type fails
+
+PanelOS is intentionally single-system focused for simplicity and security.  - Metrics continue if one metric type fails
+
   - Terminal service handles edge cases
-  - Firewall service validates all inputs
+
+---  - Firewall service validates all inputs
+
 - ✅ **Frontend Error UI**: User-friendly error notifications
-  - Non-blocking error/success messages
+
+**Last Updated:** November 4, 2025  - Non-blocking error/success messages
+
   - Auto-dismiss after timeout
   - Clear, actionable error text
 - ✅ **Documentation**: Comprehensive inline comments
