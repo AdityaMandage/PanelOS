@@ -400,9 +400,13 @@ pm2 logs panelos
 
 **Expected output:**
 ```
-[panelos]  Server running at http://0.0.0.0:3000
-[panelos]  Environment: development
+[panelos] 2025-11-04 10:45:20 [info]: Server running at http://0.0.0.0:3000
+[panelos] 2025-11-04 10:45:20 [info]: Environment: development
+[panelos] 2025-11-04 10:45:21 [info]: User logged in: username from 100.90.57.84
+[panelos] 2025-11-04 10:45:22 [error]: Connection timeout
 ```
+
+You'll see both INFO and ERROR level messages. The logs are also saved to files in `logs/` directory with daily rotation and 3-day retention policy.
 
 ---
 

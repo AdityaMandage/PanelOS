@@ -54,9 +54,9 @@ const logger = winston.createLogger({
         winston.format.json()
       )
     }),
-    // Console - ERROR level only
+    // Console - INFO level (for PM2 to capture all messages)
     new winston.transports.Console({
-      level: 'error',
+      level: 'info',
       format: winston.format.combine(
         winston.format.colorize(),
         winston.format.printf(({ level, message, timestamp, stack }) => {
