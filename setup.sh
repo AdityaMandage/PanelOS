@@ -89,7 +89,15 @@ detect_package_manager() {
 
 update_packages() {
     log_info "Updating package index..."
-    eval "$PKG_UPDATE_CMD" >/dev/null
+    
+    # For APT, try to fix broken packages first
+    if [[ "$PKG_MANAGER" == "apt" ]]; then
+        log_info "Checking for broken packages..."
+        sudo dpkg --configure -a || true
+        apt-get --fix-broken install -y >/dev/null || true
+    fi
+    
+    eval "$PKG_UPDATE_CMD" >/dev/null || true
 }
 
 install_packages() {
@@ -129,6 +137,8 @@ ensure_system_prereqs() {
 
     case "$PKG_MANAGER" in
         apt)
+            # Fix any broken packages before installing
+            apt-get install -f -y >/dev/null || true
             install_packages curl wget ca-certificates gnupg build-essential openssl git lsof net-tools
             install_packages ufw || true
             install_packages sysstat lm-sensors || true
