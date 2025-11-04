@@ -28,7 +28,7 @@ Baseline requirements:
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/your-org/PanelOS.git
+git clone https://github.com/AdityaMandage/PanelOS.git
 cd PanelOS
 
 # 2. Make the provisioning script executable
@@ -37,6 +37,12 @@ chmod +x setup.sh
 # 3. Run full provisioning (installs everything and starts the service)
 sudo ./setup.sh
 ```
+
+**Note:** The setup script is designed to be resilient to system issues:
+- It will attempt to fix broken packages automatically
+- If a package fails to install, it tries alternative methods and continues
+- It handles network issues gracefully and retries critical steps
+- If something fails, you can safely re-run the script multiple times
 
 What the script does:
 

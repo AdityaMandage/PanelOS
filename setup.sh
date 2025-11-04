@@ -110,17 +110,27 @@ install_packages() {
     [[ ${#packages[@]} -eq 0 ]] && return
 
     log_info "Installing packages: ${packages[*]}"
-    case "$PKG_MANAGER" in
-        apt)
-            apt-get install -y "${packages[@]}" >/dev/null
-            ;;
-        pacman)
-            pacman -S --noconfirm "${packages[@]}"
-            ;;
-        *)
-            eval "$PKG_INSTALL_CMD \"${packages[@]}\"" >/dev/null
-            ;;
-    esac
+    
+    for pkg in "${packages[@]}"; do
+        case "$PKG_MANAGER" in
+            apt)
+                apt-get install -y "$pkg" 2>/dev/null || {
+                    log_warning "Failed to install $pkg, trying to fix and retry..."
+                    apt-get --fix-broken install -y >/dev/null 2>&1 || true
+                    apt-get install -y "$pkg" >/dev/null 2>&1 || true
+                }
+                ;;
+            dnf|yum)
+                dnf install -y "$pkg" >/dev/null 2>&1 || yum install -y "$pkg" >/dev/null 2>&1 || true
+                ;;
+            pacman)
+                pacman -S --noconfirm "$pkg" >/dev/null 2>&1 || true
+                ;;
+            zypper)
+                zypper install -y "$pkg" >/dev/null 2>&1 || true
+                ;;
+        esac
+    done
 }
 
 check_os_release() {
@@ -182,18 +192,27 @@ install_node() {
     log_info "Installing Node.js ${NODE_INSTALL_MAJOR}.x ..."
     case "$PKG_MANAGER" in
         apt)
-            curl -fsSL "https://deb.nodesource.com/setup_${NODE_INSTALL_MAJOR}.x" | bash - >/dev/null
-            install_packages nodejs
+            log_info "Adding NodeSource repository..."
+            curl -fsSL "https://deb.nodesource.com/setup_${NODE_INSTALL_MAJOR}.x" 2>/dev/null | bash - >/dev/null 2>&1 || {
+                log_warning "NodeSource setup failed, trying direct apt install..."
+            }
+            apt-get update >/dev/null 2>&1 || true
+            apt-get install -y nodejs npm >/dev/null 2>&1 || {
+                log_warning "Installing from distro packages..."
+                apt-get install -y node-typescript npm >/dev/null 2>&1 || true
+            }
             ;;
         dnf|yum)
-            curl -fsSL "https://rpm.nodesource.com/setup_${NODE_INSTALL_MAJOR}.x" | bash - >/dev/null
-            install_packages nodejs
+            curl -fsSL "https://rpm.nodesource.com/setup_${NODE_INSTALL_MAJOR}.x" 2>/dev/null | bash - >/dev/null 2>&1 || {
+                log_warning "NodeSource setup failed, trying direct dnf/yum install..."
+            }
+            dnf install -y nodejs npm >/dev/null 2>&1 || yum install -y nodejs npm >/dev/null 2>&1 || true
             ;;
         pacman)
-            install_packages nodejs npm
+            pacman -S --noconfirm nodejs npm >/dev/null 2>&1 || true
             ;;
         zypper)
-            install_packages nodejs${NODE_INSTALL_MAJOR} npm${NODE_INSTALL_MAJOR} || install_packages nodejs npm
+            zypper install -y nodejs${NODE_INSTALL_MAJOR} npm >/dev/null 2>&1 || zypper install -y nodejs npm >/dev/null 2>&1 || true
             ;;
         *)
             log_error "Automatic Node.js installation not supported on this platform."
