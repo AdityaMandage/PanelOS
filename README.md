@@ -279,26 +279,40 @@ The improved logging uses Winston with daily rotation:
 
 PM2 provides professional process management with auto-restart, log rotation, and resource monitoring.
 
-**Installation & Quick Start:**
-```bash
-# Install PM2 (local or global)
-npm install  # Already installed as dev dependency
+**⚡ QUICKEST WAY TO RUN:**
 
-# Start PanelOS with PM2 (background process)
-npm run start:pm2         # Development mode
-npm run start:pm2:prod    # Production mode
+See **[QUICKSTART.md](QUICKSTART.md)** for step-by-step instructions on all Linux distributions, or use the automated setup:
+
+```bash
+git clone https://github.com/AdityaMandage/PanelOS.git
+cd PanelOS
+chmod +x setup.sh
+sudo ./setup.sh
+```
+
+**Manual PM2 Commands:**
+```bash
+# Install PM2 globally
+npm install -g pm2
+
+# Start PanelOS in development mode
+pm2 start ecosystem.config.cjs --env development
 
 # View status
-npm run pm2:status
+pm2 status
 
 # View logs
-npm run pm2:logs
+pm2 logs panelos
 
 # Restart
-npm run restart:pm2
+pm2 restart panelos
 
 # Stop
-npm run stop:pm2
+pm2 stop panelos
+
+# Auto-start on boot
+pm2 startup systemd -u $(whoami) --hp $(eval echo ~$(whoami))
+pm2 save
 ```
 
 **PM2 Benefits:**
@@ -308,6 +322,7 @@ npm run stop:pm2
 - ✅ Built-in log management
 - ✅ Process monitoring and health checks
 - ✅ Graceful shutdown handling
+````
 - ✅ Perfect for 24/7 operation
 
 **Production Setup with Auto-Start:**
