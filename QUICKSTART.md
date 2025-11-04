@@ -13,6 +13,29 @@ Before starting, ensure you have:
 - ~2GB free disk space
 - ~15 minutes
 
+### If You See dpkg Errors
+
+If you encounter dpkg errors like `unknown system user 'netdata'`, run this first:
+
+```bash
+# Fix broken dpkg state
+sudo dpkg --configure -a
+sudo apt-get --fix-broken install -y
+sudo apt-get install -f -y
+
+# Remove problematic statoverrides
+sudo dpkg --get-selections | grep deinstall | awk '{print $1}' | xargs -r sudo apt-get purge -y
+sudo dpkg --list | grep "^rc" | awk '{print $2}' | xargs -r sudo apt-get purge -y
+
+# If netdata user issue persists, remove it:
+sudo dpkg-statoverride --remove /var/lib/netdata || true
+sudo dpkg-statoverride --remove /var/cache/netdata || true
+
+# Then retry
+sudo apt-get update
+sudo apt-get autoremove -y
+```
+
 ---
 
 ## Step 1: Clone the Repository
@@ -37,10 +60,22 @@ remote: Enumerating objects: X, done.
 ### For Debian/Ubuntu/Raspberry Pi OS:
 
 ```bash
-sudo apt-get update
-sudo dpkg --configure -a
-sudo apt-get --fix-broken install -y
-sudo apt-get install -y curl wget git build-essential openssl python3 lsof net-tools
+# First, ensure dpkg is in good state
+sudo dpkg --configure -a || true
+sudo apt-get update || true
+
+# Try to install packages one by one (better error isolation)
+sudo apt-get install -y curl || true
+sudo apt-get install -y wget || true
+sudo apt-get install -y git || true
+sudo apt-get install -y build-essential || true
+sudo apt-get install -y openssl || true
+sudo apt-get install -y python3 || true
+sudo apt-get install -y lsof || true
+sudo apt-get install -y net-tools || true
+
+# Optional: firewall (not required for PanelOS to run)
+sudo apt-get install -y ufw || true
 ```
 
 **Expected output:**
@@ -49,6 +84,31 @@ Reading package lists... Done
 Building dependency tree... Done
 0 upgraded, X newly installed, 0 to remove and 0 not upgraded.
 ```
+
+**If you get dpkg errors during any package install:**
+
+```bash
+# Stop and fix the system first
+sudo dpkg --configure -a
+sudo apt-get --fix-broken install -y
+sudo apt-get install -f -y
+
+# Clean up old/broken packages
+sudo apt-get autoremove -y
+sudo apt-get autoclean -y
+
+# Retry the package installation above
+```
+
+### Minimum Required Packages (if above fails)
+
+The absolutely minimum packages needed:
+```bash
+sudo apt-get install -y curl git openssl
+```
+
+The rest are optional and PanelOS will work without them (though some features may be limited).
+
 
 ### For Fedora/RHEL/CentOS:
 
@@ -147,7 +207,7 @@ pm2 --version
 ### Create `.env` from template:
 
 ```bash
-cp .env.example .env
+sudo cp .env.example .env
 ```
 
 ### Generate secure session secret:
@@ -164,7 +224,7 @@ a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6a7b8c9d0e1f
 ### Edit the `.env` file:
 
 ```bash
-nano .env
+sudo nano .env
 ```
 
 Or use your preferred editor. Update these values:
@@ -434,6 +494,55 @@ export PATH="/usr/local/bin:$PATH"
 # Then try again
 npm --version
 ```
+
+### dpkg Errors During Setup?
+
+**Error:** `unknown system user 'netdata' in statoverride file`
+
+This happens when a system user (netdata) was removed but dpkg still references it.
+
+**Quick Fix:**
+
+```bash
+# Kill any stuck apt/dpkg processes
+sudo killall apt apt-get dpkg 2>/dev/null || true
+sleep 2
+
+# List all statoverrides to see the problem
+sudo dpkg-statoverride --list
+
+# Remove the problematic netdata statoverride
+sudo dpkg-statoverride --remove /var/lib/netdata 2>/dev/null || true
+sudo dpkg-statoverride --remove /var/cache/netdata 2>/dev/null || true
+
+# Remove ALL bad statoverrides at once
+sudo dpkg-statoverride --list | awk '{print $NF}' | while read path; do
+    sudo dpkg-statoverride --remove "$path" 2>/dev/null || true
+done
+
+# Clean dpkg lock files
+sudo rm -f /var/lib/dpkg/lock* 2>/dev/null || true
+
+# Reconfigure dpkg
+sudo dpkg --configure -a
+
+# Try your install again
+sudo apt-get update
+sudo apt-get install -y ufw
+```
+
+**Expected output after fix:**
+```
+Setting up ufw (0.36.x) ...
+Processing triggers for man-db (2.x.x) ...
+```
+
+If you still get lock errors, wait a moment and try again:
+```bash
+sleep 5
+sudo apt-get install -y ufw
+```
+
 
 ---
 
